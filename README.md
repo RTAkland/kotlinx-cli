@@ -1,20 +1,13 @@
 # kotlinx-cli
 
-[![Kotlin Experimental](https://kotl.in/badges/experimental.svg)](https://kotlinlang.org/docs/components-stability.html)
-[![JetBrains obsolete project](https://jb.gg/badges/obsolete.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-cli.svg?label=Maven%20Central)](https://search.maven.org/artifact/org.jetbrains.kotlinx/kotlinx-cli)
-
-## This library is obsolete
-
-It is effectively unmaintained. Please consider using other libraries.
 
 ## Description
 
 Pure Kotlin implementation of a generic command-line parser.
 
-* Declarative: describe what your commands and parameters are 
-* Platform-agnostic: core library has no platform-specific dependencies and can be used in any Kotlin project 
+* Declarative: describe what your commands and parameters are
+* Platform-agnostic: core library has no platform-specific dependencies and can be used in any Kotlin project
 * Hackable: build extensions on top of it however you like
 
 `kotlinx-cli` can be used to create user-friendly and flexible command-line interfaces
@@ -25,17 +18,16 @@ and also generate help and usage messages as well.
 
 ## Using in your projects
 
-> Note that the library is experimental and the API is subject to change.
-
-The library is published to Maven Central repository.
+The library is published to `https://repo.rtast.cn/packages`
 
 ### Gradle
 
-- Add the Maven Central repository if it is not already there:
+- Add the Maven repository if it is not already there:
 
 ```kotlin
 repositories {
     mavenCentral()
+    maven("https://repo.rtast.cn/packages")
 }
 ```
 
@@ -45,9 +37,9 @@ In Kotlin multiplatform projects, add the following dependency to a source set (
 kotlin {
     sourceSets {
         commonMain {
-             dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
-             }
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
+            }
         }
     }
 }
@@ -61,7 +53,7 @@ In Kotlin projects, add the following dependency to the `dependencies` element o
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-cli-jvm</artifactId>
-    <version>0.3.6</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 ## Command line entities
@@ -113,9 +105,9 @@ fun main(args: Array<String>) {
     val parser = ArgParser("example")
     val input by parser.option(ArgType.String, shortName = "i", description = "Input file").required()
     val output by parser.option(ArgType.String, shortName = "o", description = "Output file name")
-    val format by parser.option(ArgType.Choice<Format>(), shortName = "f", 
+    val format by parser.option(ArgType.Choice<Format>(), shortName = "f",
         description = "Format for output file").default(Format.CSV).multiple()
-    val stringFormat by parser.option(ArgType.Choice(listOf("html", "csv", "pdf"), { it }), shortName = "sf", 
+    val stringFormat by parser.option(ArgType.Choice(listOf("html", "csv", "pdf"), { it }), shortName = "sf",
         description = "Format as string for output file").default("csv").multiple()
     val debug by parser.option(ArgType.Boolean, shortName = "d", description = "Turn on debug mode").default(false)
     val eps by parser.option(ArgType.Double, description = "Observational error").default(0.01)
@@ -133,8 +125,8 @@ It's also possible to use arguments in current example.
 
 ```kotlin
 ...
-    val input by parser.argument(ArgType.String, description = "Input file")
-    val output by parser.argument(ArgType.String, description = "Output file name").optional()
+val input by parser.argument(ArgType.String, description = "Input file")
+val output by parser.argument(ArgType.String, description = "Output file name").optional()
 ```
 
 Auto-generated help message for this example is
@@ -153,11 +145,9 @@ Options:
 ## Subcommands
 
 If application has rich command line interface and executes different actions with different arguments,
- subcommands can be useful.
- 
-```kotlin
-@file:OptIn(ExperimentalCli::class)
+subcommands can be useful.
 
+```kotlin
 import kotlinx.cli.*
 
 fun main(args: Array<String>) {
@@ -209,14 +199,12 @@ Arguments:
 Options: 
     --help, -h -> Usage info
 ```
-    
-The boolean property `strictSubcommandOptionsOrder` defines the allowed order of options and arguments for subcommands. 
+
+The boolean property `strictSubcommandOptionsOrder` defines the allowed order of options and arguments for subcommands.
 When it is `false` (default), then the main program's options can be specified everywhere, even after the subcommand.
 Otherwise, parameters can only be specified after the subcommands where they are defined. For example,
 
 ```kotlin
-@file:OptIn(ExperimentalCli::class)
-
 import kotlinx.cli.*
 
 fun main(args: Array<String>) {
