@@ -7,7 +7,7 @@ package kotlinx.cli
 /**
  * Parsing value of option/argument.
  */
-internal abstract class ParsingValue<T: Any, TResult: Any>(val descriptor: Descriptor<T, TResult>) {
+internal abstract class ParsingValue<T : Any, TResult : Any>(val descriptor: Descriptor<T, TResult>) {
     /**
      * Values of arguments.
      */
@@ -52,13 +52,14 @@ internal abstract class ParsingValue<T: Any, TResult: Any>(val descriptor: Descr
     internal fun addValue(stringValue: String) {
         // Check of possibility to set several values to one option/argument.
         if (descriptor is OptionDescriptor<*, *> && !descriptor.multiple &&
-                !isEmpty() && descriptor.delimiter == null) {
+            !isEmpty() && descriptor.delimiter == null
+        ) {
             throw ParsingException("Try to provide more than one value for ${descriptor.fullName}.")
         }
         // Show deprecated warning only first time of using option/argument.
         descriptor.deprecatedWarning?.let {
             if (isEmpty())
-                println ("Warning: $it")
+                println("Warning: $it")
         }
         // Split value if needed.
         if (descriptor is OptionDescriptor<*, *> && descriptor.delimiter != null) {
@@ -95,8 +96,8 @@ internal abstract class ParsingValue<T: Any, TResult: Any>(val descriptor: Descr
  *
  * @property descriptor descriptor of option/argument.
  */
-internal abstract class AbstractArgumentSingleValue<T: Any>(descriptor: Descriptor<T, T>):
-        ParsingValue<T, T>(descriptor) {
+internal abstract class AbstractArgumentSingleValue<T : Any>(descriptor: Descriptor<T, T>) :
+    ParsingValue<T, T>(descriptor) {
 
     override fun saveValue(stringValue: String) {
         if (!valueIsInitialized()) {
@@ -115,11 +116,13 @@ internal abstract class AbstractArgumentSingleValue<T: Any>(descriptor: Descript
  *
  * @property descriptor descriptor of option/argument.
  */
-internal class ArgumentSingleValue<T: Any>(descriptor: Descriptor<T, T>): AbstractArgumentSingleValue<T>(descriptor),
-        ArgumentValueDelegate<T> {
+internal class ArgumentSingleValue<T : Any>(descriptor: Descriptor<T, T>) : AbstractArgumentSingleValue<T>(descriptor),
+    ArgumentValueDelegate<T> {
     override var value: T
-        get() = if (!isEmpty()) parsedValue else error("Value for argument ${descriptor.fullName} isn't set. " +
-                "ArgParser.parse(...) method should be called before.")
+        get() = if (!isEmpty()) parsedValue else error(
+            "Value for argument ${descriptor.fullName} isn't set. " +
+                    "ArgParser.parse(...) method should be called before."
+        )
         set(value) = setDelegatedValue(value)
 }
 
@@ -128,18 +131,18 @@ internal class ArgumentSingleValue<T: Any>(descriptor: Descriptor<T, T>): Abstra
  *
  * @property descriptor descriptor of option/argument.
  */
-internal class ArgumentSingleNullableValue<T : Any>(descriptor: Descriptor<T, T>):
-        AbstractArgumentSingleValue<T>(descriptor), ArgumentValueDelegate<T?> {
+internal class ArgumentSingleNullableValue<T : Any>(descriptor: Descriptor<T, T>) :
+    AbstractArgumentSingleValue<T>(descriptor), ArgumentValueDelegate<T?> {
     private var setToNull = false
     override var value: T?
         get() = if (!isEmpty() && !setToNull) parsedValue else null
         set(providedValue) = providedValue?.let {
-                setDelegatedValue(it)
-                setToNull = false
-            } ?: run {
-                setToNull = true
-                valueOrigin = ArgParser.ValueOrigin.REDEFINED
-            }
+            setDelegatedValue(it)
+            setToNull = false
+        } ?: run {
+            setToNull = true
+            valueOrigin = ArgParser.ValueOrigin.REDEFINED
+        }
 }
 
 /**
@@ -147,10 +150,11 @@ internal class ArgumentSingleNullableValue<T : Any>(descriptor: Descriptor<T, T>
  *
  * @property descriptor descriptor of option/argument.
  */
-internal class ArgumentMultipleValues<T : Any>(descriptor: Descriptor<T, List<T>>):
-        ParsingValue<T, List<T>>(descriptor), ArgumentValueDelegate<List<T>> {
+internal class ArgumentMultipleValues<T : Any>(descriptor: Descriptor<T, List<T>>) :
+    ParsingValue<T, List<T>>(descriptor), ArgumentValueDelegate<List<T>> {
 
     private val addedValue = mutableListOf<T>()
+
     init {
         parsedValue = addedValue
     }

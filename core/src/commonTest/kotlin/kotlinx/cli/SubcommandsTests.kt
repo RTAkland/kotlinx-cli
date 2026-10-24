@@ -2,10 +2,11 @@
  * Copyright 2010-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
  * that can be found in the LICENSE file.
  */
-@file:OptIn(ExperimentalCli::class)
 package kotlinx.cli
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class SubcommandsTests {
     @Test
@@ -13,7 +14,8 @@ class SubcommandsTests {
         val argParser = ArgParser("testParser")
         val output by argParser.option(ArgType.String, "output", "o", "Output file")
         val defaultOption by argParser.option(ArgType.String, "format", "f", "Output format").default("CSV")
-        class Summary: Subcommand("summary", "Calculate summary") {
+
+        class Summary : Subcommand("summary", "Calculate summary") {
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results")
             val addendums by argument(ArgType.Int, "addendums", description = "Addendums").vararg()
             var result: Int = 0
@@ -23,6 +25,7 @@ class SubcommandsTests {
                 result = if (invert!!) -1 * result else result
             }
         }
+
         val action = Summary()
         argParser.subcommands(action)
         argParser.parse(arrayOf("summary", "-o", "out.txt", "-i", "2", "3", "5"))
@@ -35,7 +38,7 @@ class SubcommandsTests {
     fun testStrictSubcommandOptionsOrder() {
         val argParserStrictFail = ArgParser("testParser", strictSubcommandOptionsOrder = true).avoidProcessExit()
         argParserStrictFail.option(ArgType.String, "output", "o", "Output file")
-        class Summary: Subcommand("summary", "Calculate summary") {
+        class Summary : Subcommand("summary", "Calculate summary") {
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results")
             val addendums by argument(ArgType.Int, "addendums", description = "Addendums").vararg()
             var result: Int = 0
@@ -62,10 +65,11 @@ class SubcommandsTests {
 
     @Test
     fun testCommonOptions() {
-        abstract class CommonOptions(name: String, actionDescription: String): Subcommand(name, actionDescription) {
+        abstract class CommonOptions(name: String, actionDescription: String) : Subcommand(name, actionDescription) {
             val numbers by argument(ArgType.Int, "numbers", description = "Numbers").vararg()
         }
-        class Summary: CommonOptions("summary", "Calculate summary") {
+
+        class Summary : CommonOptions("summary", "Calculate summary") {
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results")
             var result: Int = 0
 
@@ -100,7 +104,7 @@ class SubcommandsTests {
     fun testRecursiveSubcommands() {
         val argParser = ArgParser("testParser")
 
-        class Summary: Subcommand("summary", "Calculate summary") {
+        class Summary : Subcommand("summary", "Calculate summary") {
             val addendums by argument(ArgType.Int, "addendums", description = "Addendums").vararg()
             var result: Int = 0
 
@@ -109,10 +113,11 @@ class SubcommandsTests {
             }
         }
 
-        class Calculation: Subcommand("calc", "Execute calculation") {
+        class Calculation : Subcommand("calc", "Execute calculation") {
             init {
                 subcommands(Summary())
             }
+
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results")
             var result: Int = 0
 
@@ -133,7 +138,8 @@ class SubcommandsTests {
         val parser = ArgParser("testParser")
         val output by parser.option(ArgType.String, "output", "o", "Output file")
             .default("any_file")
-        class Summary: Subcommand("summary", "Calculate summary") {
+
+        class Summary : Subcommand("summary", "Calculate summary") {
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results").default(false)
             val addendums by argument(ArgType.Int, "addendums", description = "Addendums").vararg()
             var result: Int = 0
@@ -144,14 +150,16 @@ class SubcommandsTests {
                 println("result is: $result and will output to $output")
             }
         }
-        class Multiply: Subcommand("mul", "Multiply") {
+
+        class Multiply : Subcommand("mul", "Multiply") {
             val numbers by argument(ArgType.Int, description = "Addendums").vararg()
             var result: Int = 0
 
             override fun execute() {
-                result = numbers.reduce{ acc, it -> acc * it }
+                result = numbers.reduce { acc, it -> acc * it }
             }
         }
+
         val summary = Summary()
         val multiple = Multiply()
         parser.subcommands(summary, multiple)

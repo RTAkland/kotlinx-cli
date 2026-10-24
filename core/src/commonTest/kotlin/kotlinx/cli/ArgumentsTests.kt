@@ -7,7 +7,8 @@
 
 package kotlinx.cli
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ArgumentsTests {
     @Test
@@ -27,8 +28,12 @@ class ArgumentsTests {
         val argParser = ArgParser("testParser")
         val output by argParser.argument(ArgType.String, "output", "Output file")
         val inputs by argParser.argument(ArgType.String, description = "Input files").vararg()
-        argParser.parse(arrayOf("out.txt", "input1.txt", "input2.txt", "input3.txt",
-                "input4.txt"))
+        argParser.parse(
+            arrayOf(
+                "out.txt", "input1.txt", "input2.txt", "input3.txt",
+                "input4.txt"
+            )
+        )
         assertEquals("out.txt", output)
         assertEquals(4, inputs.size)
     }
@@ -46,11 +51,11 @@ class ArgumentsTests {
         assertEquals(2, first)
         assertEquals(3, second)
     }
-    
+
     @Test
     fun testVarargArguments() {
-        fun main(vararg args: String): Array<out String> = args 
-    
+        fun main(vararg args: String): Array<out String> = args
+
 
         val argParser = ArgParser("testParser")
         val addendums by argParser.argument(ArgType.Int, "addendums", description = "Addendums").multiple(2)

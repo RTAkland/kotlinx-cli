@@ -1,30 +1,35 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    val kotlinVersion: String by project
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    }
-}
-
 plugins {
-    id("kotlinx.team.infra")
-}
-
-infra {
-    teamcity {
-        libraryStagingRepoDescription = project.name
-    }
-    publishing {
-        include(":kotlinx-cli")
-        libraryRepoUrl = "https://github.com/Kotlin/kotlinx-cli"
-        sonatype {}
-    }
+    kotlin("multiplatform") version "2.4.21" apply false
+    id("maven-publish")
 }
 
 allprojects {
+    group = "org.jetbrains.kotlinx"
+    version = property("version")!!
+
     repositories {
         mavenCentral()
+    }
+}
+
+subprojects {
+    pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+    pluginManager.apply("maven-publish")
+
+    publishing {
+        repositories {
+            maven("https://repo.rtast.cn/packages") {
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Authorization"
+                    val token = providers.gradleProperty("PUBLISH_TOKEN")
+                        .orElse(providers.environmentVariable("PUBLISH_TOKEN"))
+                        .orNull
+                    value = "Bearer $token"
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+        }
     }
 }

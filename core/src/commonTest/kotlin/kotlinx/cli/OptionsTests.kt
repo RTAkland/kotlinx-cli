@@ -7,7 +7,8 @@
 
 package kotlinx.cli
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class OptionsTests {
     @Test
@@ -82,11 +83,16 @@ class OptionsTests {
     @Test
     fun testMultipleOptions() {
         val argParser = ArgParser("testParser")
-        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report").default(false)
-        val renders by argParser.option(ArgType.Choice<Renders>(),
-                "renders", "r", "Renders for showing information").multiple().default(listOf(Renders.TEXT))
-        val sources by argParser.option(ArgType.Choice<DataSourceEnum>(),
-                "sources", "ds", "Data sources").multiple().default(listOf(DataSourceEnum.PRODUCTION))
+        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report")
+            .default(false)
+        val renders by argParser.option(
+            ArgType.Choice<Renders>(),
+            "renders", "r", "Renders for showing information"
+        ).multiple().default(listOf(Renders.TEXT))
+        val sources by argParser.option(
+            ArgType.Choice<DataSourceEnum>(),
+            "sources", "ds", "Data sources"
+        ).multiple().default(listOf(DataSourceEnum.PRODUCTION))
         argParser.parse(arrayOf("-s", "-r", "text", "-r", "json", "-ds", "local", "-ds", "production"))
         assertEquals(true, useShortForm)
 
@@ -104,11 +110,16 @@ class OptionsTests {
     @Test
     fun testDefaultOptions() {
         val argParser = ArgParser("testParser")
-        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report").default(false)
-        val renders by argParser.option(ArgType.Choice<Renders>(),
-                "renders", "r", "Renders for showing information").multiple().default(listOf(Renders.TEXT))
-        val sources by argParser.option(ArgType.Choice<DataSourceEnum>(),
-                "sources", "ds", "Data sources").multiple().default(listOf(DataSourceEnum.PRODUCTION))
+        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report")
+            .default(false)
+        val renders by argParser.option(
+            ArgType.Choice<Renders>(),
+            "renders", "r", "Renders for showing information"
+        ).multiple().default(listOf(Renders.TEXT))
+        val sources by argParser.option(
+            ArgType.Choice<DataSourceEnum>(),
+            "sources", "ds", "Data sources"
+        ).multiple().default(listOf(DataSourceEnum.PRODUCTION))
         val output by argParser.option(ArgType.String, "output", "o", "Output file")
         argParser.parse(arrayOf("-o", "out.txt"))
         assertEquals(false, useShortForm)
@@ -119,13 +130,18 @@ class OptionsTests {
     @Test
     fun testResetOptionsValues() {
         val argParser = ArgParser("testParser")
-        val useShortFormOption = argParser.option(ArgType.Boolean, "short", "s", "Show short version of report").default(false)
+        val useShortFormOption =
+            argParser.option(ArgType.Boolean, "short", "s", "Show short version of report").default(false)
         var useShortForm by useShortFormOption
-        val rendersOption = argParser.option(ArgType.Choice<Renders>(),
-                "renders", "r", "Renders for showing information").multiple().default(listOf(Renders.TEXT))
+        val rendersOption = argParser.option(
+            ArgType.Choice<Renders>(),
+            "renders", "r", "Renders for showing information"
+        ).multiple().default(listOf(Renders.TEXT))
         var renders by rendersOption
-        val sourcesOption = argParser.option(ArgType.Choice<DataSourceEnum>(),
-                "sources", "ds", "Data sources").multiple().default(listOf(DataSourceEnum.PRODUCTION))
+        val sourcesOption = argParser.option(
+            ArgType.Choice<DataSourceEnum>(),
+            "sources", "ds", "Data sources"
+        ).multiple().default(listOf(DataSourceEnum.PRODUCTION))
         var sources by sourcesOption
         val outputOption = argParser.option(ArgType.String, "output", "o", "Output file")
         var output by outputOption

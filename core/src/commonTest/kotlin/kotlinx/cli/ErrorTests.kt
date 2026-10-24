@@ -7,10 +7,12 @@
 
 package kotlinx.cli
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
-internal fun ArgParser.avoidProcessExit() = apply { outputAndTerminate = { message, _ ->  error(message) } }
+internal fun ArgParser.avoidProcessExit() = apply { outputAndTerminate = { message, _ -> error(message) } }
 
 class ErrorTests {
 
@@ -20,8 +22,11 @@ class ErrorTests {
         val addendums by argParser.argument(ArgType.Int, "addendums", description = "Addendums").multiple(2)
         val output by argParser.argument(ArgType.String, "output", "Output file")
         val debugMode by argParser.option(ArgType.Boolean, "debug", "d", "Debug mode")
-        val exception = assertFailsWith<IllegalStateException> { argParser.parse(
-                arrayOf("2", "-d", "3", "out.txt", "something", "else", "in", "string")) }
+        val exception = assertFailsWith<IllegalStateException> {
+            argParser.parse(
+                arrayOf("2", "-d", "3", "out.txt", "something", "else", "in", "string")
+            )
+        }
         assertTrue("Too many arguments! Couldn't process argument something" in exception.message!!)
     }
 
@@ -54,9 +59,12 @@ class ErrorTests {
     @Test
     fun testWrongChoice() {
         val argParser = ArgParser("testParser").avoidProcessExit()
-        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report").default(false)
-        val renders by argParser.option(ArgType.Choice<RenderEnum>(),
-                "renders", "r", "Renders for showing information").multiple().default(listOf(RenderEnum.TEXT))
+        val useShortForm by argParser.option(ArgType.Boolean, "short", "s", "Show short version of report")
+            .default(false)
+        val renders by argParser.option(
+            ArgType.Choice<RenderEnum>(),
+            "renders", "r", "Renders for showing information"
+        ).multiple().default(listOf(RenderEnum.TEXT))
         val exception = assertFailsWith<IllegalStateException> {
             argParser.parse(arrayOf("-r", "xml"))
         }
@@ -66,8 +74,10 @@ class ErrorTests {
     @Test
     fun testWrongEnumChoice() {
         val argParser = ArgParser("testParser").avoidProcessExit()
-        val sources by argParser.option(ArgType.Choice<DataSourceEnum>(),
-                "sources", "s", "Data sources").multiple().default(listOf(DataSourceEnum.PRODUCTION))
+        val sources by argParser.option(
+            ArgType.Choice<DataSourceEnum>(),
+            "sources", "s", "Data sources"
+        ).multiple().default(listOf(DataSourceEnum.PRODUCTION))
         val exception = assertFailsWith<IllegalStateException> {
             argParser.parse(arrayOf("-s", "debug"))
         }
@@ -77,15 +87,17 @@ class ErrorTests {
     @Test
     fun testWrongEnumChoiceWithCustomToString() {
         val argParser = ArgParser("testParser").avoidProcessExit()
-        val sources by argParser.option(ArgType.Choice<DataSourceEnum> { it.name[0].toString().lowercase() },
-            "sources", "s", "Data sources")
+        val sources by argParser.option(
+            ArgType.Choice<DataSourceEnum> { it.name[0].toString().lowercase() },
+            "sources", "s", "Data sources"
+        )
         val exception = assertFailsWith<IllegalStateException> {
             argParser.parse(arrayOf("-s", "d"))
         }
         assertTrue("Option sources is expected to be one of [l, s, p]. d is provided." in exception.message!!)
     }
 
-    object KeyValue: ArgType<Pair<String, String>>(true) {
+    object KeyValue : ArgType<Pair<String, String>>(true) {
         override val description: kotlin.String
             get() {
                 return "{ Value should have format <key>=<value> }"
@@ -103,7 +115,11 @@ class ErrorTests {
     @Test
     fun testCustomOptionType() {
         val argParser = ArgParser("testParser").avoidProcessExit()
-        val useShortForm by argParser.option(ArgType.Boolean, shortName = "s", description = "Show short version of report").default(false)
+        val useShortForm by argParser.option(
+            ArgType.Boolean,
+            shortName = "s",
+            description = "Show short version of report"
+        ).default(false)
         val option by argParser.option(KeyValue, shortName = "op", description = "Additional options").required()
         val output by argParser.option(ArgType.String, shortName = "o", description = "Output file")
 

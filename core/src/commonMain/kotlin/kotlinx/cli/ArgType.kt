@@ -11,11 +11,11 @@ package kotlinx.cli
  * Inheritors describe type of argument value. New types can be added by user.
  * In case of options type can have parameter or not.
  */
-abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
+public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) {
     /**
      * Text description of type for helpMessage.
      */
-    abstract val description: kotlin.String
+    public abstract val description: kotlin.String
 
     /**
      * Function to convert string argument value to its type.
@@ -23,12 +23,12 @@ abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
      *
      * @param value value
      */
-    abstract fun convert(value: kotlin.String, name: kotlin.String): T
+    public abstract fun convert(value: kotlin.String, name: kotlin.String): T
 
     /**
      * Argument type for flags that can be only set/unset.
      */
-    object Boolean : ArgType<kotlin.Boolean>(false) {
+    public object Boolean : ArgType<kotlin.Boolean>(false) {
         override val description: kotlin.String
             get() = ""
 
@@ -39,7 +39,7 @@ abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
     /**
      * Argument type for string values.
      */
-    object String : ArgType<kotlin.String>(true) {
+    public object String : ArgType<kotlin.String>(true) {
         override val description: kotlin.String
             get() = "{ String }"
 
@@ -49,34 +49,34 @@ abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
     /**
      * Argument type for integer values.
      */
-    object Int : ArgType<kotlin.Int>(true) {
+    public object Int : ArgType<kotlin.Int>(true) {
         override val description: kotlin.String
             get() = "{ Int }"
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.Int =
             value.toIntOrNull()
-                    ?: throw ParsingException("Option $name is expected to be integer number. $value is provided.")
+                ?: throw ParsingException("Option $name is expected to be integer number. $value is provided.")
     }
 
     /**
      * Argument type for double values.
      */
-    object Double : ArgType<kotlin.Double>(true) {
+    public object Double : ArgType<kotlin.Double>(true) {
         override val description: kotlin.String
             get() = "{ Double }"
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.Double =
             value.toDoubleOrNull()
-                    ?: throw ParsingException("Option $name is expected to be double number. $value is provided.")
+                ?: throw ParsingException("Option $name is expected to be double number. $value is provided.")
     }
 
-    companion object {
+    companion {
         /**
          * Helper for arguments that have limited set of possible values represented as enumeration constants.
          */
-        inline fun <reified T : Enum<T>> Choice(
+        public inline fun <reified T : Enum<T>> Choice(
             noinline toVariant: ((kotlin.String) -> T)? = null,
-            noinline toString: (T) -> kotlin.String = { it.toString().lowercase() }
+            noinline toString: (T) -> kotlin.String = { it.toString().lowercase() },
         ): Choice<T> {
             return Choice(
                 enumValues<T>().toList(),
@@ -92,9 +92,11 @@ abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
     /**
      * Type for arguments that have limited set of possible values.
      */
-    class Choice<T: Any>(choices: List<T>,
-                             val toVariant: (kotlin.String) -> T,
-                             val variantToString: (T) -> kotlin.String = { it.toString() }): ArgType<T>(true) {
+    public class Choice<T : Any>(
+        choices: List<T>,
+        public val toVariant: (kotlin.String) -> T,
+        public val variantToString: (T) -> kotlin.String = { it.toString() },
+    ) : ArgType<T>(true) {
         private val choicesMap: Map<kotlin.String, T> = choices.associateBy { variantToString(it) }
 
         init {
@@ -108,13 +110,13 @@ abstract class ArgType<T : Any>(val hasParameter: kotlin.Boolean) {
                 return "{ Value should be one of ${choicesMap.keys} }"
             }
 
-        override fun convert(value: kotlin.String, name: kotlin.String) =
+        override fun convert(value: kotlin.String, name: kotlin.String): T =
             try {
                 toVariant(value)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 throw ParsingException("Option $name is expected to be one of ${choicesMap.keys}. $value is provided.")
             }
     }
 }
 
-class ParsingException(message: String) : Exception(message)
+public class ParsingException(message: String) : Exception(message)

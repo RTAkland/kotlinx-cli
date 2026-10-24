@@ -2,12 +2,12 @@
  * Copyright 2010-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
  * that can be found in the LICENSE file.
  */
-@file:OptIn(ExperimentalCli::class)
 @file:Suppress("UNUSED_VARIABLE")
 
 package kotlinx.cli
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class HelpTests {
     enum class Renders {
@@ -26,15 +26,26 @@ class HelpTests {
 
         val output by argParser.option(ArgType.String, shortName = "o", description = "Output file")
         val epsValue by argParser.option(ArgType.Double, "eps", "e", "Meaningful performance changes").default(1.0)
-        val useShortForm by argParser.option(ArgType.Boolean, "short", "s",
-                "Show short version of report").default(false)
-        val renders by argParser.option(ArgType.Choice(listOf("text", "html", "teamcity", "statistics", "metrics"), { it }),
-                shortName = "r", description = "Renders for showing information").multiple().default(listOf("text"))
-        val sources by argParser.option(ArgType.Choice<DataSourceEnum>(),
-                "sources", "ds", "Data sources").multiple().default(listOf(DataSourceEnum.PRODUCTION))
-        val user by argParser.option(ArgType.String, shortName = "u", description = "User access information for authorization")
+        val useShortForm by argParser.option(
+            ArgType.Boolean, "short", "s",
+            "Show short version of report"
+        ).default(false)
+        val renders by argParser.option(
+            ArgType.Choice(listOf("text", "html", "teamcity", "statistics", "metrics"), { it }),
+            shortName = "r", description = "Renders for showing information"
+        ).multiple().default(listOf("text"))
+        val sources by argParser.option(
+            ArgType.Choice<DataSourceEnum>(),
+            "sources", "ds", "Data sources"
+        ).multiple().default(listOf(DataSourceEnum.PRODUCTION))
+        val user by argParser.option(
+            ArgType.String,
+            shortName = "u",
+            description = "User access information for authorization"
+        )
         argParser.parse(arrayOf("main.txt"))
         val helpOutput = argParser.makeUsage().trimIndent()
+
         @Suppress("CanBeVal") // can't be val in order to build expectedOutput only in run time.
         var epsDefault = 1.0
         val expectedOutput = """
@@ -127,10 +138,11 @@ Options:
 
     @Test
     fun testHelpMessageWithSubcommands() {
-        abstract class CommonOptions(name: String, actionDescription: String): Subcommand(name, actionDescription) {
+        abstract class CommonOptions(name: String, actionDescription: String) : Subcommand(name, actionDescription) {
             val numbers by argument(ArgType.Int, "numbers", description = "Numbers").vararg()
         }
-        class Summary: CommonOptions("summary", "Calculate summary") {
+
+        class Summary : CommonOptions("summary", "Calculate summary") {
             val invert by option(ArgType.Boolean, "invert", "i", "Invert results")
             var result: Int = 0
 

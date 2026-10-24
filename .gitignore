@@ -5,3 +5,5 @@ build/
 local.properties
 
 
+/.kotlin/
+/kotlin-js-store/

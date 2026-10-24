@@ -14,16 +14,19 @@ package kotlinx.cli
  * @property required if option/argument is required or not. If it's required and not provided in command line, error will be generated.
  * @property deprecatedWarning text message with information in case if option is deprecated.
  */
-internal abstract class Descriptor<T : Any, TResult>(val type: ArgType<T>,
-                                                     var fullName: String? = null,
-                                                     val description: String? = null,
-                                                     val defaultValue: TResult? = null,
-                                                     val required: Boolean = false,
-                                                     val deprecatedWarning: String? = null) {
+internal abstract class Descriptor<T : Any, TResult>(
+    val type: ArgType<T>,
+    var fullName: String? = null,
+    val description: String? = null,
+    val defaultValue: TResult? = null,
+    val required: Boolean = false,
+    val deprecatedWarning: String? = null,
+) {
     /**
      * Text description for help message.
      */
     abstract val textDescription: String
+
     /**
      * Help message for descriptor.
      */
@@ -35,11 +38,11 @@ internal abstract class Descriptor<T : Any, TResult>(val type: ArgType<T>,
      * @param value value got getting text description for.
      */
     fun valueDescription(value: TResult?) = value?.let {
-        if (it is List<*> && it.isNotEmpty())
-            " [${it.joinToString()}]"
-        else if (it !is List<*>)
-            " [$it]"
-        else null
+        when (it) {
+            is List<*> if it.isNotEmpty() -> " [${it.joinToString()}]"
+            !is List<*> -> " [$it]"
+            else -> null
+        }
     }
 
     /**
@@ -68,18 +71,21 @@ internal abstract class Descriptor<T : Any, TResult>(val type: ArgType<T>,
  * @property deprecatedWarning text message with information in case if option is deprecated.
  */
 internal class OptionDescriptor<T : Any, TResult>(
-        val optionFullFormPrefix: String,
-        val optionShortFromPrefix: String,
-        type: ArgType<T>,
-        fullName: String? = null,
-        val shortName: String ? = null,
-        description: String? = null,
-        defaultValue: TResult? = null,
-        required: Boolean = false,
-        val multiple: Boolean = false,
-        val delimiter: String? = null,
-        deprecatedWarning: String? = null) : Descriptor<T, TResult>(type, fullName, description, defaultValue,
-        required, deprecatedWarning) {
+    val optionFullFormPrefix: String,
+    val optionShortFromPrefix: String,
+    type: ArgType<T>,
+    fullName: String? = null,
+    val shortName: String? = null,
+    description: String? = null,
+    defaultValue: TResult? = null,
+    required: Boolean = false,
+    val multiple: Boolean = false,
+    val delimiter: String? = null,
+    deprecatedWarning: String? = null,
+) : Descriptor<T, TResult>(
+    type, fullName, description, defaultValue,
+    required, deprecatedWarning
+) {
 
     override val textDescription: String
         get() = "option $optionFullFormPrefix$fullName"
@@ -92,7 +98,7 @@ internal class OptionDescriptor<T : Any, TResult>(
             valueDescription(defaultValue)?.let {
                 result.append(it)
             }
-            description?.let {result.append(" -> $it")}
+            description?.let { result.append(" -> $it") }
             if (required) result.append(" (always required)")
             result.append(" ${type.description}")
             deprecatedWarning?.let { result.append(" Warning: $it") }
@@ -115,20 +121,21 @@ internal class OptionDescriptor<T : Any, TResult>(
  * @property deprecatedWarning text message with information in case if argument is deprecated.
  */
 internal class ArgDescriptor<T : Any, TResult>(
-        type: ArgType<T>,
-        fullName: String?,
-        val number: Int? = null,
-        description: String? = null,
-        defaultValue: TResult? = null,
-        required: Boolean = true,
-        deprecatedWarning: String? = null) : Descriptor<T, TResult>(type, fullName, description, defaultValue,
-        required, deprecatedWarning) {
-
+    type: ArgType<T>,
+    fullName: String?,
+    val number: Int? = null,
+    description: String? = null,
+    defaultValue: TResult? = null,
+    required: Boolean = true,
+    deprecatedWarning: String? = null,
+) : Descriptor<T, TResult>(
+    type, fullName, description, defaultValue,
+    required, deprecatedWarning
+) {
     init {
         // Check arguments number correctness.
         number?.let {
-            if (it < 1)
-                error("Number of arguments for argument description $fullName should be greater than zero.")
+            if (it < 1) error("Number of arguments for argument description $fullName should be greater than zero.")
         }
     }
 
@@ -138,7 +145,7 @@ internal class ArgDescriptor<T : Any, TResult>(
     override val helpMessage: String
         get() {
             val result = StringBuilder()
-            result.append("    ${fullName}")
+            result.append("    $fullName")
             valueDescription(defaultValue)?.let {
                 result.append(it)
             }

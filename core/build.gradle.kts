@@ -1,82 +1,32 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+@file:OptIn(ExperimentalWasmDsl::class)
 
-plugins {
-    kotlin("multiplatform")
-}
-
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.allWarningsAsErrors = true
-}
-
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
-    rootProject.the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension>().nodeVersion = "16.0.0"
-}
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 kotlin {
-    infra {
-        target("macosX64")
-        target("macosArm64")
-        target("linuxX64")
-        target("mingwX64")
+    linuxX64()
+    linuxArm64()
+    macosArm64()
+    mingwX64()
+    jvm { compilerOptions.jvmTarget = JvmTarget.JVM_1_8 }
+    js {
+        browser()
+        nodejs()
+        binaries.library()
+    }
+    wasmJs {
+        browser()
+        nodejs()
+        binaries.library()
     }
 
-    js(IR) {
-        moduleName = "${rootProject.name}-${project.name}"
-        nodejs {
-        }
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
-                metaInfo = true
-            }
-        }
-    }
-
-    jvm()
+    explicitApi()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
-            }
-        }
-        // JVM-specific tests and their dependencies:
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit"))
-            }
-        }
-        val jsMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-js"))
-            }
-        }
-        // JS-specific tests and their dependencies:
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 
-    sourceSets.all {
-        kotlin.setSrcDirs(listOf("$name/src"))
-        resources.setSrcDirs(listOf("$name/resources"))
-        languageSettings.apply {
-            optIn("kotlinx.cli.ExperimentalCli")
-        }
-    }
+    compilerOptions.freeCompilerArgs.addAll("-Xcompanion-blocks-and-extensions")
 }
