@@ -1,6 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 kotlin {
@@ -14,11 +11,6 @@ kotlin {
         nodejs()
         binaries.library()
     }
-    wasmJs {
-        browser()
-        nodejs()
-        binaries.library()
-    }
 
     explicitApi()
 
@@ -27,6 +19,4 @@ kotlin {
             implementation(kotlin("test"))
         }
     }
-
-    compilerOptions.freeCompilerArgs.addAll("-Xcompanion-blocks-and-extensions")
 }
