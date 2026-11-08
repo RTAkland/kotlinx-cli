@@ -70,7 +70,7 @@ public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) 
                 ?: throw ParsingException("Option $name is expected to be double number. $value is provided.")
     }
 
-    companion {
+    public companion object {
         /**
          * Helper for arguments that have limited set of possible values represented as enumeration constants.
          */
