@@ -1,10 +1,3 @@
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
 rootProject.name = "Kotlinx-Cli-Library"
 
 include(":core")

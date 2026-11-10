@@ -4,7 +4,7 @@ plugins {
 }
 
 allprojects {
-    group = "org.jetbrains.kotlinx"
+    group = "cn.rtast.kotlinx"
     version = property("version")!!
 
     repositories {
@@ -28,6 +28,25 @@ subprojects {
                 }
                 authentication {
                     create<HttpHeaderAuthentication>("header")
+                }
+            }
+        }
+        publications.withType<MavenPublication> {
+            pom {
+                name.set("kotlin-cli")
+                description.set("Kotlin CLI Library")
+                url.set("https://repo.rtast.cn/RTAkland/kotlinx-cli")
+                licenses {
+                    license {
+                        name.set("Apache-2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("rtakland")
+                        name.set("RTAkland")
+                    }
                 }
             }
         }
