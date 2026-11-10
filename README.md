@@ -26,37 +26,27 @@ The library is published to `https://repo.rtast.cn/packages`
 
 ```kotlin
 repositories {
-    mavenCentral()
     maven("https://repo.rtast.cn/packages")
 }
 ```
 
-In Kotlin multiplatform projects, add the following dependency to a source set (it may be a common or platform specific source set):
+In Kotlin Multiplatform projects, add the following dependency to a source set (it may be a common or platform specific
+source set):
 
 ```groovy
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
+                implementation("org.jetbrains.kotlinx:kotlinx-cli:0.4.2")
             }
         }
     }
 }
 ```
 
-### Maven
-
-In Kotlin projects, add the following dependency to the `dependencies` element of `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-cli-jvm</artifactId>
-    <version>0.4.0</version>
-</dependency>
-```
 ## Command line entities
+
 There are 2 base entity: option and argument.
 
 *Option* - command line entity started with some prefix (-/--) and can have value as next entity in command line string.
@@ -64,10 +54,12 @@ There are 2 base entity: option and argument.
 *Argument* - command line entity which role is connected only with its position.
 
 Command line entities can be several types:
+
 * ArgType.Boolean
 * ArgType.Int
 * ArgType.String
 * ArgType.Double
+* ArgType.HexString (Hex String e.g. "48 65 6c 6c 6f" (quoted) or 48656c6c6f)
 * ArgType.Choice (value can be only from predefined list)
 
 Custom types can be created.
@@ -105,10 +97,14 @@ fun main(args: Array<String>) {
     val parser = ArgParser("example")
     val input by parser.option(ArgType.String, shortName = "i", description = "Input file").required()
     val output by parser.option(ArgType.String, shortName = "o", description = "Output file name")
-    val format by parser.option(ArgType.Choice<Format>(), shortName = "f",
-        description = "Format for output file").default(Format.CSV).multiple()
-    val stringFormat by parser.option(ArgType.Choice(listOf("html", "csv", "pdf"), { it }), shortName = "sf",
-        description = "Format as string for output file").default("csv").multiple()
+    val format by parser.option(
+        ArgType.Choice<Format>(), shortName = "f",
+        description = "Format for output file"
+    ).default(Format.CSV).multiple()
+    val stringFormat by parser.option(
+        ArgType.Choice(listOf("html", "csv", "pdf"), { it }), shortName = "sf",
+        description = "Format as string for output file"
+    ).default("csv").multiple()
     val debug by parser.option(ArgType.Boolean, shortName = "d", description = "Turn on debug mode").default(false)
     val eps by parser.option(ArgType.Double, description = "Observational error").default(0.01)
 
@@ -130,6 +126,7 @@ val output by parser.argument(ArgType.String, description = "Output file name").
 ```
 
 Auto-generated help message for this example is
+
 ```
 Usage: example options_list
 Arguments: 
@@ -153,7 +150,8 @@ import kotlinx.cli.*
 fun main(args: Array<String>) {
     val parser = ArgParser("example")
     val output by parser.option(ArgType.String, "output", "o", "Output file")
-    class Summary: Subcommand("summary", "Calculate summary") {
+
+    class Summary : Subcommand("summary", "Calculate summary") {
         val invert by option(ArgType.Boolean, "invert", "i", "Invert results").default(false)
         val addendums by argument(ArgType.Int, "addendums", description = "Addendums").vararg()
         var result: Int = 0
@@ -163,14 +161,15 @@ fun main(args: Array<String>) {
             result = if (invert!!) -1 * result else result
         }
     }
-    class Multiply: Subcommand("mul", "Multiply") {
+    class Multiply : Subcommand("mul", "Multiply") {
         val numbers by argument(ArgType.Int, description = "Addendums").vararg()
         var result: Int = 0
 
         override fun execute() {
-            result = numbers.reduce{ acc, it -> acc * it }
+            result = numbers.reduce { acc, it -> acc * it }
         }
     }
+
     val summary = Summary()
     val multiple = Multiply()
     parser.subcommands(summary, multiple)
@@ -182,6 +181,7 @@ fun main(args: Array<String>) {
 Then help information will be available for each subcommand separately.
 
 In case of `example summary -h` help info will be
+
 ```
 Usage: example summary options_list
 Arguments: 
@@ -192,6 +192,7 @@ Options:
 ```
 
 In case of `example mul -h` help info will be
+
 ```
 Usage: example mul options_list
 Arguments: 
@@ -211,20 +212,22 @@ fun main(args: Array<String>) {
     val parser = ArgParser("example", strictSubcommandOptionsOrder = true)
     val output by parser.option(ArgType.String, "output", "o", "Output file")
 
-    class Multiply: Subcommand("mul", "Multiply") {
+    class Multiply : Subcommand("mul", "Multiply") {
         val numbers by argument(ArgType.Int, description = "Addendums").vararg()
         var result: Int = 0
 
         override fun execute() {
-            result = numbers.reduce{ acc, it -> acc * it }
+            result = numbers.reduce { acc, it -> acc * it }
         }
     }
+
     val multiple = Multiply()
     parser.subcommands(summary, multiple)
 
     parser.parse(args)
 }
 ```
+
 `example -o out.txt mul 1 2 3 -o out.txt # OK`
 
 `example mul 1 2 3 -o out.txt # fail in this case, but OK if strictSubcommandOptionsOrder is false`

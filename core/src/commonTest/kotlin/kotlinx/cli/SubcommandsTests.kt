@@ -83,7 +83,7 @@ class SubcommandsTests {
             var result: Int = 0
 
             override fun execute() {
-                result = numbers.map { -it }.sum()
+                result = numbers.sumOf { -it }
             }
         }
 

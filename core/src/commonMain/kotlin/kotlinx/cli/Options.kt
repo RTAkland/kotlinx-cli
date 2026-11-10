@@ -13,17 +13,17 @@ package kotlinx.cli
  */
 public interface MultipleOptionType {
     /**
-     * Type of an option with multiple values allowed to be provided several times in command line.
+     * Type of option with multiple values allowed to be provided several times in command line.
      */
     public class Repeated : MultipleOptionType
 
     /**
-     * Type of an option with multiple values allowed to be provided using delimiter in one command line value.
+     * Type of option with multiple values allowed to be provided using delimiter in one command line value.
      */
     public class Delimited : MultipleOptionType
 
     /**
-     * Type of an option with multiple values allowed to be provided several times in command line
+     * Type of option with multiple values allowed to be provided several times in command line
      * both with specifying several values and with delimiter.
      */
     public class RepeatedDelimited : MultipleOptionType
@@ -48,8 +48,7 @@ public abstract class Option<TResult> internal constructor(
 public abstract class AbstractSingleOption<T : Any, TResult, DefaultRequired : DefaultRequiredType> internal constructor(
     delegate: ArgumentValueDelegate<TResult>,
     owner: CLIEntityWrapper,
-) :
-    Option<TResult>(delegate, owner) {
+) : Option<TResult>(delegate, owner) {
     /**
      * Check descriptor for this kind of option.
      */
@@ -65,11 +64,10 @@ public abstract class AbstractSingleOption<T : Any, TResult, DefaultRequired : D
  *
  * The [value] of such option is non-null.
  */
-public class SingleOption<T : Any, DefaultType : DefaultRequiredType> internal constructor(
+public class SingleOption<T : Any> internal constructor(
     descriptor: OptionDescriptor<T, T>,
     owner: CLIEntityWrapper,
-) :
-    AbstractSingleOption<T, T, DefaultRequiredType>(ArgumentSingleValue(descriptor), owner) {
+) : AbstractSingleOption<T, T, DefaultRequiredType>(ArgumentSingleValue(descriptor), owner) {
     init {
         checkDescriptor(descriptor)
     }
@@ -93,11 +91,10 @@ public class SingleNullableOption<T : Any> internal constructor(
  *
  * The [value] property of such option has type `List<T>`.
  */
-public class MultipleOption<T : Any, OptionType : MultipleOptionType, DefaultType : DefaultRequiredType> internal constructor(
+public class MultipleOption<T : Any> internal constructor(
     descriptor: OptionDescriptor<T, List<T>>,
     owner: CLIEntityWrapper,
-) :
-    Option<List<T>>(ArgumentMultipleValues(descriptor), owner) {
+) : Option<List<T>>(ArgumentMultipleValues(descriptor), owner) {
     init {
         if (!descriptor.multiple && descriptor.delimiter == null) {
             failAssertion("Option with multiple values can't be initialized with descriptor for single one.")
@@ -109,10 +106,9 @@ public class MultipleOption<T : Any, OptionType : MultipleOptionType, DefaultTyp
  * Allows the option to have several values specified in command line string.
  * Number of values is unlimited.
  */
-public fun <T : Any, TResult, DefaultType : DefaultRequiredType> AbstractSingleOption<T, TResult, DefaultType>.multiple():
-        MultipleOption<T, MultipleOptionType.Repeated, DefaultType> {
+public fun <T : Any, TResult, DefaultType : DefaultRequiredType> AbstractSingleOption<T, TResult, DefaultType>.multiple(): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, T>>()).descriptor as OptionDescriptor) {
-        MultipleOption<T, MultipleOptionType.Repeated, DefaultType>(
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, listOfNotNull(defaultValue),
@@ -128,13 +124,10 @@ public fun <T : Any, TResult, DefaultType : DefaultRequiredType> AbstractSingleO
  * Allows the option to have several values specified in command line string.
  * Number of values is unlimited.
  */
-public fun <T : Any, DefaultType : DefaultRequiredType> MultipleOption<T, MultipleOptionType.Delimited, DefaultType>.multiple():
-        MultipleOption<T, MultipleOptionType.RepeatedDelimited, DefaultRequiredType> {
+public fun <T : Any> MultipleOption<T>.multiple(): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as OptionDescriptor) {
-        if (multiple) {
-            error("Try to use modifier multiple() twice on option ${fullName ?: ""}")
-        }
-        MultipleOption<T, MultipleOptionType.RepeatedDelimited, DefaultRequiredType>(
+        if (multiple) error("Try to use modifier multiple() twice on option ${fullName ?: ""}")
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, defaultValue?.toList() ?: listOf(),
@@ -152,9 +145,9 @@ public fun <T : Any, DefaultType : DefaultRequiredType> MultipleOption<T, Multip
  *
  * @param value the default value.
  */
-public fun <T : Any> SingleNullableOption<T>.default(value: T): SingleOption<T, DefaultRequiredType.Default> {
+public fun <T : Any> SingleNullableOption<T>.default(value: T): SingleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, T>>()).descriptor as OptionDescriptor) {
-        SingleOption<T, DefaultRequiredType.Default>(
+        SingleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, value, required, multiple, delimiter, deprecatedWarning
@@ -172,12 +165,10 @@ public fun <T : Any> SingleNullableOption<T>.default(value: T): SingleOption<T, 
  * @param value the default value, must be a non-empty collection.
  * @throws IllegalArgumentException if provided default value is empty collection.
  */
-public fun <T : Any, OptionType : MultipleOptionType>
-        MultipleOption<T, OptionType, DefaultRequiredType.None>.default(value: Collection<T>):
-        MultipleOption<T, OptionType, DefaultRequiredType.Default> {
+public fun <T : Any> MultipleOption<T>.default(value: Collection<T>): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as OptionDescriptor) {
         require(value.isNotEmpty()) { "Default value for option can't be empty collection." }
-        MultipleOption<T, OptionType, DefaultRequiredType.Default>(
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName,
                 shortName, description, value.toList(),
@@ -192,9 +183,9 @@ public fun <T : Any, OptionType : MultipleOptionType>
 /**
  * Requires the option to be always provided in command line.
  */
-public fun <T : Any> SingleNullableOption<T>.required(): SingleOption<T, DefaultRequiredType.Required> {
+public fun <T : Any> SingleNullableOption<T>.required(): SingleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, T>>()).descriptor as OptionDescriptor) {
-        SingleOption<T, DefaultRequiredType.Required>(
+        SingleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName,
                 shortName, description, defaultValue,
@@ -209,11 +200,9 @@ public fun <T : Any> SingleNullableOption<T>.required(): SingleOption<T, Default
 /**
  * Requires the option to be always provided in command line.
  */
-public fun <T : Any, OptionType : MultipleOptionType>
-        MultipleOption<T, OptionType, DefaultRequiredType.None>.required():
-        MultipleOption<T, OptionType, DefaultRequiredType.Required> {
+public fun <T : Any> MultipleOption<T>.required(): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as OptionDescriptor) {
-        MultipleOption<T, OptionType, DefaultRequiredType.Required>(
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, defaultValue?.toList() ?: listOf(),
@@ -235,9 +224,9 @@ public fun <T : Any, OptionType : MultipleOptionType>
  */
 public fun <T : Any, DefaultRequired : DefaultRequiredType> AbstractSingleOption<T, *, DefaultRequired>.delimiter(
     delimiterValue: String,
-): MultipleOption<T, MultipleOptionType.Delimited, DefaultRequired> {
+): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, T>>()).descriptor as OptionDescriptor) {
-        MultipleOption<T, MultipleOptionType.Delimited, DefaultRequired>(
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, listOfNotNull(defaultValue),
@@ -257,11 +246,9 @@ public fun <T : Any, DefaultRequired : DefaultRequiredType> AbstractSingleOption
  *
  * @param delimiterValue delimiter used to separate string value to option values list.
  */
-public fun <T : Any, DefaultRequired : DefaultRequiredType> MultipleOption<T, MultipleOptionType.Repeated, DefaultRequired>.delimiter(
-    delimiterValue: String,
-): MultipleOption<T, MultipleOptionType.RepeatedDelimited, DefaultRequired> {
+public fun <T : Any> MultipleOption<T>.delimiter(delimiterValue: String): MultipleOption<T> {
     val newOption = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as OptionDescriptor) {
-        MultipleOption<T, MultipleOptionType.RepeatedDelimited, DefaultRequired>(
+        MultipleOption(
             OptionDescriptor(
                 optionFullFormPrefix, optionShortFromPrefix, type, fullName, shortName,
                 description, defaultValue?.toList() ?: listOf(),

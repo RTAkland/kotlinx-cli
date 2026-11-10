@@ -30,7 +30,7 @@ internal abstract class ParsingValue<T : Any, TResult : Any>(val descriptor: Des
     protected fun valueIsInitialized() = ::parsedValue.isInitialized
 
     /**
-     * Sace value from command line.
+     * Save value from command line.
      *
      * @param stringValue value from command line.
      */

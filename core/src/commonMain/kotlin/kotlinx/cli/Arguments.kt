@@ -17,12 +17,12 @@ internal data class CLIEntityWrapper(var entity: CLIEntity<*>? = null)
  */
 public interface DefaultRequiredType {
     /**
-     * Type of an entity with default value.
+     * Type of entity with default value.
      */
     public class Default : DefaultRequiredType
 
     /**
-     * Type of an entity which value should always be provided in command line.
+     * Type of entity which value should always be provided in command line.
      */
     public class Required : DefaultRequiredType
 
@@ -104,8 +104,7 @@ public abstract class Argument<TResult> internal constructor(
 public abstract class AbstractSingleArgument<T : Any, TResult, DefaultRequired : DefaultRequiredType> internal constructor(
     delegate: ArgumentValueDelegate<TResult>,
     owner: CLIEntityWrapper,
-) :
-    Argument<TResult>(delegate, owner) {
+) : Argument<TResult>(delegate, owner) {
     /**
      * Check descriptor for this kind of argument.
      */
@@ -168,7 +167,7 @@ public fun <T : Any, TResult, DefaultRequired : DefaultRequiredType>
         AbstractSingleArgument<T, TResult, DefaultRequired>.multiple(number: Int): MultipleArgument<T> {
     require(number >= 2) { "multiple() modifier with value less than 2 is unavailable. It's already set to 1." }
     val newArgument = with((delegate.cast<ParsingValue<T, T>>()).descriptor as ArgDescriptor) {
-        MultipleArgument<T>(
+        MultipleArgument(
             ArgDescriptor(
                 type, fullName, number, description, listOfNotNull(defaultValue),
                 required, deprecatedWarning
@@ -185,7 +184,7 @@ public fun <T : Any, TResult, DefaultRequired : DefaultRequiredType>
 public fun <T : Any, TResult, DefaultRequired : DefaultRequiredType> AbstractSingleArgument<T, TResult, DefaultRequired>.vararg():
         MultipleArgument<T> {
     val newArgument = with((delegate.cast<ParsingValue<T, T>>()).descriptor as ArgDescriptor) {
-        MultipleArgument<T>(
+        MultipleArgument(
             ArgDescriptor(
                 type, fullName, null, description, listOfNotNull(defaultValue),
                 required, deprecatedWarning
@@ -229,7 +228,7 @@ public fun <T : Any> MultipleArgument<T>.default(value: Collection<T>):
         MultipleArgument<T> {
     require(value.isNotEmpty()) { "Default value for argument can't be empty collection." }
     val newArgument = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as ArgDescriptor) {
-        MultipleArgument<T>(
+        MultipleArgument(
             ArgDescriptor(
                 type, fullName, number, description, value.toList(),
                 required, deprecatedWarning
@@ -269,7 +268,7 @@ public fun <T : Any> SingleArgument<T, DefaultRequiredType.Required>.optional():
  */
 public fun <T : Any> MultipleArgument<T>.optional(): MultipleArgument<T> {
     val newArgument = with((delegate.cast<ParsingValue<T, List<T>>>()).descriptor as ArgDescriptor) {
-        MultipleArgument<T>(
+        MultipleArgument(
             ArgDescriptor(
                 type, fullName, number, description,
                 defaultValue?.toList() ?: listOf(), false, deprecatedWarning

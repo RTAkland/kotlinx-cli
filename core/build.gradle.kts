@@ -6,11 +6,6 @@ kotlin {
     macosArm64()
     mingwX64()
     jvm { compilerOptions.jvmTarget = JvmTarget.JVM_1_8 }
-    js {
-        browser()
-        nodejs()
-        binaries.library()
-    }
 
     explicitApi()
 

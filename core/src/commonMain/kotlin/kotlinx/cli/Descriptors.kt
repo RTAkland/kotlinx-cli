@@ -35,7 +35,7 @@ internal abstract class Descriptor<T : Any, TResult>(
     /**
      * Provide text description of value.
      *
-     * @param value value got getting text description for.
+     * @param value value got text description for.
      */
     fun valueDescription(value: TResult?) = value?.let {
         when (it) {

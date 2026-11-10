@@ -26,7 +26,7 @@ internal class ArgumentsQueue(argumentsDescriptors: List<ArgDescriptor<*, *>>) {
         if (argumentsUsageNumber.isEmpty())
             return null
 
-        val (currentDescriptor, usageNumber) = argumentsUsageNumber.iterator().next()
+        val [currentDescriptor, usageNumber] = argumentsUsageNumber.iterator().next()
         currentDescriptor.number?.let {
             // Parse all arguments for current argument description.
             if (usageNumber + 1 >= currentDescriptor.number) {
@@ -225,7 +225,6 @@ public open class ArgParser(
      * therefore its value's type is `T?`.
      *
      * You can alter the option properties by chaining extensions for the option type on the returned object:
-     *   - [AbstractSingleOption.default] to provide a default value that is used when the option is not specified;
      *   - [SingleNullableOption.required] to make the option non-optional;
      *   - [AbstractSingleOption.delimiter] to allow specifying multiple values in one command line argument with a delimiter;
      *   - [AbstractSingleOption.multiple] to allow specifying the option several times.
@@ -271,7 +270,7 @@ public open class ArgParser(
      */
     private fun inspectRequiredAndDefaultUsage() {
         var previousArgument: ParsingValue<*, *>? = null
-        arguments.forEach { (_, currentArgument) ->
+        arguments.forEach { [_, currentArgument] ->
             previousArgument?.let { previous ->
                 // Previous argument has default value.
                 if (previous.descriptor.defaultValueSet) {
@@ -304,7 +303,6 @@ public open class ArgParser(
      * therefore its value's type is `T`.
      *
      * You can alter the argument properties by chaining extensions for the argument type on the returned object:
-     *   - [AbstractSingleArgument.default] to provide a default value that is used when the argument is not specified;
      *   - [SingleArgument.optional] to allow omitting the argument;
      *   - [AbstractSingleArgument.multiple] to require the argument to have exactly the number of values specified;
      *   - [AbstractSingleArgument.vararg] to allow specifying an unlimited number of values for the _last_ argument.
@@ -342,17 +340,12 @@ public open class ArgParser(
      */
     public fun subcommands(vararg subcommandsList: Subcommand) {
         subcommandsList.forEach {
-            if (it.name in subcommands) {
-                error("Subcommand with name ${it.name} was already defined.")
-            }
-
+            if (it.name in subcommands) error("Subcommand with name ${it.name} was already defined.")
             // Set same settings as main parser.
             it.prefixStyle = prefixStyle
             it.useDefaultHelpShortName = useDefaultHelpShortName
             it.strictSubcommandOptionsOrder = strictSubcommandOptionsOrder
-            fullCommandName.forEachIndexed { index, namePart ->
-                it.fullCommandName.add(index, namePart)
-            }
+            fullCommandName.forEachIndexed { index, namePart -> it.fullCommandName.add(index, namePart) }
             it.outputAndTerminate = outputAndTerminate
             subcommands[it.name] = it
         }
@@ -594,7 +587,7 @@ public open class ArgParser(
         inspectRequiredAndDefaultUsage()
 
         listOf(arguments, options).forEach {
-            it.forEach { (_, value) ->
+            it.forEach { [_, value] ->
                 value.valueOrigin = ValueOrigin.UNSET
             }
         }
@@ -656,7 +649,11 @@ public open class ArgParser(
                 if (strictSubcommandOptionsOrder) {
                     it.parse(args.slice(argIterator.nextIndex() until args.size))
                 } else {
-                    it.parse(subcommandsOptions + listOfNotNull("--".takeUnless { treatAsOption }) + subcommandsArguments)
+                    it.parse(buildList {
+                        addAll(this@ArgParser.subcommandsOptions)
+                        addAll(listOfNotNull("--".takeUnless { this@ArgParser.treatAsOption }))
+                        addAll(this@ArgParser.subcommandsArguments)
+                    })
                 }
                 it.execute()
                 parsingState = ArgParserResult(it.name)
@@ -678,7 +675,7 @@ public open class ArgParser(
         result.append("Usage: ${fullCommandName.joinToString(" ")} options_list\n")
         if (subcommands.isNotEmpty()) {
             result.append("Subcommands: \n")
-            subcommands.forEach { (_, subcommand) ->
+            subcommands.forEach { [_, subcommand] ->
                 result.append(subcommand.helpMessage)
             }
             result.append("\n")

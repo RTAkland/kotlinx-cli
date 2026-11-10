@@ -29,8 +29,7 @@ public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) 
      * Argument type for flags that can be only set/unset.
      */
     public object Boolean : ArgType<kotlin.Boolean>(false) {
-        override val description: kotlin.String
-            get() = ""
+        override val description: kotlin.String = ""
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.Boolean =
             value != "false"
@@ -40,8 +39,7 @@ public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) 
      * Argument type for string values.
      */
     public object String : ArgType<kotlin.String>(true) {
-        override val description: kotlin.String
-            get() = "{ String }"
+        override val description: kotlin.String = "{ String }"
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.String = value
     }
@@ -50,8 +48,7 @@ public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) 
      * Argument type for integer values.
      */
     public object Int : ArgType<kotlin.Int>(true) {
-        override val description: kotlin.String
-            get() = "{ Int }"
+        override val description: kotlin.String = "{ Int }"
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.Int =
             value.toIntOrNull()
@@ -62,12 +59,29 @@ public abstract class ArgType<T : Any>(public val hasParameter: kotlin.Boolean) 
      * Argument type for double values.
      */
     public object Double : ArgType<kotlin.Double>(true) {
-        override val description: kotlin.String
-            get() = "{ Double }"
+        override val description: kotlin.String = "{ Double }"
 
         override fun convert(value: kotlin.String, name: kotlin.String): kotlin.Double =
             value.toDoubleOrNull()
                 ?: throw ParsingException("Option $name is expected to be double number. $value is provided.")
+    }
+
+    /**
+     * Argument type for hex string values.
+     */
+    public object HexString : ArgType<ByteArray>(true) {
+        override val description: kotlin.String = "{ HexString }"
+        override fun convert(value: kotlin.String, name: kotlin.String): ByteArray {
+            return try {
+                value.replace(" ", "").replace("\"", "").hexToByteArray()
+            } catch (e: Exception) {
+                throw ParsingException(
+                    "Option $name is expected to be hex string. " +
+                            "Invalid format of $value is provided. " +
+                            "Exception message ${e.message}"
+                )
+            }
+        }
     }
 
     public companion object {

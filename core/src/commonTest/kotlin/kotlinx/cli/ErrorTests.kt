@@ -107,7 +107,7 @@ class ErrorTests {
             if (!value.contains('=')) {
                 throw ParsingException("Option $name should have value described with format <key>=<value>, but got $value")
             } else {
-                val (key, parameterValue) = value.split('=', limit = 2)
+                val [key, parameterValue] = value.split('=', limit = 2)
                 key.trim() to parameterValue.trim()
             }
     }

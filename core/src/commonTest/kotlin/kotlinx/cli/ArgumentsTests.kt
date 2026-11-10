@@ -8,6 +8,7 @@
 package kotlinx.cli
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class ArgumentsTests {
@@ -46,7 +47,7 @@ class ArgumentsTests {
         val debugMode by argParser.option(ArgType.Boolean, "debug", "d", "Debug mode")
         argParser.parse(arrayOf("2", "-d", "3", "out.txt"))
         assertEquals("out.txt", output)
-        val (first, second) = addendums
+        val [first, second] = addendums
         assertEquals(2, addendums.size)
         assertEquals(2, first)
         assertEquals(3, second)
@@ -63,7 +64,7 @@ class ArgumentsTests {
         val debugMode by argParser.option(ArgType.Boolean, "debug", "d", "Debug mode")
         argParser.parse(main("2", "-d", "3", "out.txt"))
         assertEquals("out.txt", output)
-        val (first, second) = addendums
+        val [first, second] = addendums
         assertEquals(2, addendums.size)
         assertEquals(2, first)
         assertEquals(3, second)
@@ -77,5 +78,13 @@ class ArgumentsTests {
         val debugMode by argParser.option(ArgType.Boolean, "debug", "d", "Debug mode")
         argParser.parse(arrayOf("2", "-d", "3", "out.txt", "something", "else", "in", "string"))
         assertEquals("out.txt", output)
+    }
+
+    @Test
+    fun testHexString() {
+        val argParser = ArgParser("testParser")
+        val hexWithSpace by argParser.option(ArgType.HexString, "hex").required()
+        argParser.parse(arrayOf("--hex", "\"48 65 6c 6c 6f\""))
+        assertContentEquals(hexWithSpace, "Hello".encodeToByteArray())
     }
 }
